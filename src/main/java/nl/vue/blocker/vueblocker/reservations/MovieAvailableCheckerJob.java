@@ -1,4 +1,4 @@
-package nl.vue.blocker.vueblocker.scheduler;
+package nl.vue.blocker.vueblocker.reservations;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class SampleJob implements Job {
+public class MovieAvailableCheckerJob implements Job {
 
+    private FutureReservations futureReservations;
 
     public void execute(JobExecutionContext context) {
+        futureReservations.findAll();
         log.error("see me going");
     }
 }

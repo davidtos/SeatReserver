@@ -1,6 +1,9 @@
 package nl.vue.blocker.vueblocker.scheduler;
 
-import org.quartz.*;
+import nl.vue.blocker.vueblocker.reservations.MovieAvailableCheckerJob;
+import org.quartz.JobDetail;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +16,13 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import javax.sql.DataSource;
 
 @Configuration
-public class ShedConf {
+public class StartUpJobConfiguration {
+
 
     @Bean
     public JobDetailFactoryBean jobDetail() {
         JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
-        jobDetailFactory.setJobClass(SampleJob.class);
+        jobDetailFactory.setJobClass(MovieAvailableCheckerJob.class);
 
         jobDetailFactory.setDescription("Invoke Sample Job service...");
         jobDetailFactory.setDurability(true);
@@ -35,8 +39,9 @@ public class ShedConf {
         return trigger;
     }
 
+
     @Bean
-    public SchedulerFactoryBean scheduler(Trigger trigger, JobDetail job, DataSource quartzDataSource, SpringBeanJobFactory springBeanJobFactory) {
+    public SchedulerFactoryBean scheduler(Trigger[] trigger, JobDetail[] job, DataSource quartzDataSource, SpringBeanJobFactory springBeanJobFactory) {
         SchedulerFactoryBean schedulerFactory = new SchedulerFactoryBean();
         schedulerFactory.setConfigLocation(new ClassPathResource("application.properties"));
 
