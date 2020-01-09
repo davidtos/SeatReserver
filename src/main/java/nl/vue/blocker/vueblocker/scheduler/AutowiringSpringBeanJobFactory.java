@@ -18,11 +18,10 @@ public final class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory i
     public void setApplicationContext(final ApplicationContext context)
     {
         this.ctx = context;
-        ;
     }
+
     @Override
-    protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception
-    {
+    protected Object createJobInstance(final TriggerFiredBundle bundle) {
         Job job = ctx.getBean(bundle.getJobDetail().getJobClass());
         BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(job);
         MutablePropertyValues pvs = new MutablePropertyValues();

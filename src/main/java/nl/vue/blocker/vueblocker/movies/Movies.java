@@ -5,7 +5,6 @@ import nl.vue.blocker.vueblocker.acl.VueApi;
 import nl.vue.blocker.vueblocker.acl.movies.Movie;
 import nl.vue.blocker.vueblocker.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.acl.vueconnector.Location;
-import nl.vue.blocker.vueblocker.reservations.FutureReservation;
 import nl.vue.blocker.vueblocker.reservations.FutureReservationsRepo;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -34,7 +33,7 @@ public class Movies {
                 .collect(Collectors.toList());
     }
 
-    private List<Movie> getFutureAndComingMovies() {
+    public List<Movie> getFutureAndComingMovies() {
         Movie[] expectedMovies = vueApi.getExpectedMovies(LocalDate.now(), 730).block();
         Movie[] performancesByCinema = vueApi.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now());
 
