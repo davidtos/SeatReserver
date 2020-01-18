@@ -1,9 +1,11 @@
 package nl.vue.blocker.vueblocker.acl.layout;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.List;
+import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -43,5 +45,13 @@ public class PerformanceLayout {
     public List<Step> steps = null;
     @JsonProperty("specialPromotion")
     public List<Object> specialPromotion = null;
+
+    public Optional<Integer> getSeatIdByRowAndColumn(int row, int column){
+        return config.auditorium.seatingPlan.stream()
+                .filter(seatingPlan -> seatingPlan.row == row)
+                .filter(seatingPlan -> seatingPlan.seat == column)
+                .findFirst()
+                .map(seatingPlan -> seatingPlan.number);
+    }
 }
 

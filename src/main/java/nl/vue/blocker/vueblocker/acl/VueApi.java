@@ -70,7 +70,7 @@ public class VueApi {
                 .bodyToMono(Movie[].class);
     }
 
-    public PerformanceLayout getCinemaLayout(String title, int performanceId) {
+    public PerformanceLayout getCinemaLayout(String title, String performanceId) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/kopen/" + title + "/" + performanceId)

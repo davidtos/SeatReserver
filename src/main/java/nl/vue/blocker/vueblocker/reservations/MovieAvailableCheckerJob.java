@@ -1,6 +1,7 @@
 package nl.vue.blocker.vueblocker.reservations;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.acl.movies.Movie;
 import nl.vue.blocker.vueblocker.acl.movies.Performance;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @Component
@@ -25,51 +27,70 @@ public class MovieAvailableCheckerJob implements Job {
      * @param context parameters for this job
      */
     public void execute(JobExecutionContext context) {
-        List<Movie> moviesMatchingFutureReservation = getReservedMoviesThatAreAlsoAvailable();
+        Iterable<FutureReservation> futureReservations = this.futureReservations.findAll();
+        List<MovieReservationData> moviesMatchingFutureReservation = getReservedMoviesThatAreAlsoAvailable(futureReservations);
 
-        moviesMatchingFutureReservation.forEach(movie -> {
-            Performance[] performanceForMovie = movies.getPerformanceForMovie(movie.getId()).block();
+        moviesMatchingFutureReservation.forEach(movieReservationData -> {
+            Performance[] performanceForMovie = movies.getPerformanceForMovie(movieReservationData.getMovie().getId()).block();
             if (performanceForMovie == null) {
                 return;
             }
             for (Performance performance : performanceForMovie) {
-                CreateReserveJob(movie, performance);
+                CreateReserveJob(movieReservationData, performance);
             }
         });
     }
 
-    private List<Movie> getReservedMoviesThatAreAlsoAvailable() {
-        Iterable<FutureReservation> futureReservations = this.futureReservations.findAll();
+    private List<MovieReservationData> getReservedMoviesThatAreAlsoAvailable(Iterable<FutureReservation> futureReservations) {
         List<Movie> futureAndComingMovies = this.movies.getFutureAndComingMovies();
 
         Predicate<Movie> containsMoviesThatNeedToBeReserved = movie -> {
             AtomicBoolean existInList = new AtomicBoolean(false);
-            futureReservations.forEach(futureReservation -> existInList.set(movie
-                    .getTitle()
-                    .toLowerCase()
-                    .contains(futureReservation.getTitle().toLowerCase())));
+            futureReservations.forEach(futureReservation -> existInList.set(movieTitleContainsFutureReservationTitle(movie, futureReservation)));
             return existInList.get();
         };
 
-        return futureAndComingMovies.stream().filter(containsMoviesThatNeedToBeReserved).collect(Collectors.toList());
+        return futureAndComingMovies.stream().filter(containsMoviesThatNeedToBeReserved).map(movie -> {
+            FutureReservation reservation = StreamSupport.stream(futureReservations.spliterator(), false)
+                    .filter(futureReservation -> movieTitleContainsFutureReservationTitle(movie, futureReservation))
+                    .findFirst()
+                    .get();
+            return new MovieReservationData(movie,reservation);
+        }).collect(Collectors.toList());
     }
 
-    private void CreateReserveJob(Movie movie, Performance performance) {
-        JobDetail job = newJob(String.format("%s - %s", movie.getTitle(), performance.getId()), movie.getId(), performance.getId(), "Reservering a performance");
+    private boolean movieTitleContainsFutureReservationTitle(Movie movie, FutureReservation futureReservation) {
+        return movie
+                .getTitle()
+                .toLowerCase()
+                .contains(futureReservation.getTitle().toLowerCase());
+    }
+
+
+    private void CreateReserveJob(MovieReservationData movieReservationData, Performance performance) {
+        JobDetail job = newJob(movieReservationData, performance.getId(), "Reserve a performance");
+        SimpleTrigger trigger = trigger(job);
         try {
-            scheduler.scheduleJob(job, trigger(job));
+            scheduler.scheduleJob(job, trigger);
         } catch (ObjectAlreadyExistsException x) {
-            log.error(String.format("Creating a job for a movie and performance that already exists. %s - %s", movie.getTitle(), performance.getId()));
+            log.error(String.format("Creating a job for a movie and performance that already exists. %s - %s", movieReservationData.getMovie().getTitle(), performance.getId()));
         } catch (SchedulerException e) {
             e.printStackTrace();
         }
     }
 
-    private JobDetail newJob(String identity, int movieId, int performanceId, String description) {
+    private JobDetail newJob(MovieReservationData movieReservationData, int performanceId, String description) {
+        Movie movie = movieReservationData.getMovie();
+        FutureReservation futureReservation = movieReservationData.getFutureReservation();
+        String identity = String.format("%s - %s", movie.getTitle(), performanceId);
+
         return JobBuilder.newJob().ofType(SeatReservatorJob.class).storeDurably()
                 .withIdentity(JobKey.jobKey(identity))
-                .usingJobData("movieId", movieId)
+                .usingJobData("movieId", movie.getId())
                 .usingJobData("performanceId", performanceId)
+                .usingJobData("slugTitle",movie.getSlug())
+                .usingJobData("seatRow",futureReservation.getColumn())
+                .usingJobData("seatColumn",futureReservation.getColumn())
                 .withDescription(description)
                 .build();
     }
@@ -80,5 +101,13 @@ public class MovieAvailableCheckerJob implements Job {
                 .withSchedule(SimpleScheduleBuilder.repeatMinutelyForever(5))
                 .startNow()
                 .build();
+    }
+
+    @AllArgsConstructor
+    @Getter
+    static
+    class MovieReservationData{
+        private Movie movie;
+        private FutureReservation futureReservation;
     }
 }
