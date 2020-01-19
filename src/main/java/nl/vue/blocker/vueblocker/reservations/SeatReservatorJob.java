@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.acl.VueApi;
 import nl.vue.blocker.vueblocker.acl.layout.PerformanceLayout;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
+import org.quartz.*;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,9 +13,11 @@ import java.util.function.Consumer;
 @Slf4j
 @Component
 @AllArgsConstructor
+@PersistJobDataAfterExecution
 public class SeatReservatorJob implements Job {
 
     private final VueApi vueApi;
+    private final Scheduler scheduler;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
@@ -32,6 +33,20 @@ public class SeatReservatorJob implements Job {
 
         seatNumber.ifPresentOrElse(reserveSeat(performanceId), logSeatDoesNotExistError());
         log.info("reserved Seat");
+
+        try {
+            scheduler.rescheduleJob(jobExecutionContext.getTrigger().getKey(),trigger(jobExecutionContext.getJobDetail()));
+        } catch (SchedulerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private SimpleTrigger trigger(JobDetail jobDetail) {
+        return TriggerBuilder.newTrigger().forJob(jobDetail)
+                .withIdentity(jobDetail.getKey().getName(), jobDetail.getKey().getGroup())
+                .withSchedule(SimpleScheduleBuilder.repeatMinutelyForTotalCount(1,5))
+                .startNow()
+                .build();
     }
 
     private Consumer<Integer> reserveSeat(int performanceId) {
