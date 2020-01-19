@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 @AllArgsConstructor
@@ -36,25 +37,17 @@ public class Movies {
     public List<Movie> getFutureAndComingMovies() {
         Movie[] expectedMovies = vueApi.getExpectedMovies(LocalDate.now(), 730).block();
         Movie[] performancesByCinema = vueApi.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now());
-
         List<Movie> uniqueMovies = new ArrayList<>(Arrays.asList(expectedMovies));
-        for (Movie movie : performancesByCinema){
-            boolean containsMovie = false;
 
-            for (Movie unqMovie : uniqueMovies){
-                if (movie.getSlug().equals(unqMovie.getSlug())) {
-                    containsMovie = true;
-                    break;
-                }
-            }
-            if (!containsMovie){
+        for (Movie movie : performancesByCinema) {
+            if (uniqueMovies.stream().noneMatch(movie1 -> movie.getSlug().equals(movie1.getSlug()))){
                 uniqueMovies.add(movie);
             }
         }
         return uniqueMovies;
     }
 
-    public Mono<Performance[]> getPerformanceForMovie(int movieId){
+    public Mono<Performance[]> getPerformanceForMovie(int movieId) {
        return vueApi.getPerformanceForMovie(movieId, Location.EINDHOVEN);
     }
 }

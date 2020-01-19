@@ -26,7 +26,7 @@ public class SeatReservatorJob implements Job {
         int seatRow = (int) jobExecutionContext.getMergedJobDataMap().get("seatRow");
         int seatColumn = (int) jobExecutionContext.getMergedJobDataMap().get("seatColumn");
 
-        PerformanceLayout cinemaLayout = vueApi.getCinemaLayout(slugTitle, Integer.toString(performanceId));
+        PerformanceLayout cinemaLayout = vueApi.getPerformanceLayout(slugTitle, Integer.toString(performanceId));
 
         Optional<Integer> seatNumber = cinemaLayout.getSeatIdByRowAndColumn(seatRow, seatColumn);
 

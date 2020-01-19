@@ -70,7 +70,7 @@ public class VueApi {
                 .bodyToMono(Movie[].class);
     }
 
-    public PerformanceLayout getCinemaLayout(String title, String performanceId) {
+    public PerformanceLayout getPerformanceLayout(String title, String performanceId) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/kopen/" + title + "/" + performanceId)
@@ -129,22 +129,28 @@ public class VueApi {
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            Reservation reservation = mapper.readValue(reservationBody, Reservation.class);
-            String sessionId = response.cookies().get("VUE").get(0).getValue();
-            reservation.sessionId = sessionId;
-            return reservation;
-
+            return mapToSuccessfulReservation(response, reservationBody, mapper);
         } catch (JsonProcessingException e) {
             try {
-                ReservationUnsuccessful reservationUnsuccessful = mapper.readValue(reservationBody, ReservationUnsuccessful.class);
-                Reservation reservation = new Reservation();
-                reservation.success = reservationUnsuccessful.success;
-                return reservation;
+                return mapToUnsuccessfulReservation(reservationBody, mapper);
             } catch (JsonProcessingException z) {
                 log.error(z.getMessage());
                 return null;
             }
         }
+    }
+
+    private Reservation mapToUnsuccessfulReservation(String reservationBody, ObjectMapper mapper) throws JsonProcessingException {
+        ReservationUnsuccessful reservationUnsuccessful = mapper.readValue(reservationBody, ReservationUnsuccessful.class);
+        Reservation reservation = new Reservation();
+        reservation.success = reservationUnsuccessful.success;
+        return reservation;
+    }
+
+    private Reservation mapToSuccessfulReservation(ClientResponse response, String reservationBody, ObjectMapper mapper) throws JsonProcessingException {
+        Reservation reservation = mapper.readValue(reservationBody, Reservation.class);
+        reservation.sessionId = response.cookies().get("VUE").get(0).getValue();
+        return reservation;
     }
 }
 

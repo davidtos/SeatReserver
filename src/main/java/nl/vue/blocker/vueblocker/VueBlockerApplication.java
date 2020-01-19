@@ -27,16 +27,4 @@ public class VueBlockerApplication {
             }
         };
     }
-
-//    @SneakyThrows
-//    @Override
-//    public void run(String... args) {
-//        log.info("EXECUTING : command line runner");
-//        // Movie[] movies = vueApi.getPerformancesByLocationAndDate(Location.EINDHOVEN, LocalDate.now());
-//        // Movie[] movies2 = vueApi.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now());
-//        // PerformanceLayout performanceLayout = vueApi.GetCinemaLayout(movies[0].getSlug(), movies[0].getPerformances().get(0).getId());
-//        // Reservation reservation = vueApi.reserveSeat(8279811, 1);
-//        Movie[] movies = vueApi.getExpectedMovies(LocalDate.now(), 730);
-//        movies = movies;
-//    }
 }

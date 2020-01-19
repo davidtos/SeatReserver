@@ -8,15 +8,22 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class VueConfig {
 
+    private static final int USE_ALL_AVAILABLE_MEMORY = -1;
+    public static final String VUE_CINEMAS_NL_URL = "https://www.vuecinemas.nl";
+
     @Bean
     public WebClient createVueWebClient() {
-
-        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)).build();
-
         return WebClient.builder()
-                .baseUrl("https://www.vuecinemas.nl")
-                .exchangeStrategies(exchangeStrategies)
+                .baseUrl(VUE_CINEMAS_NL_URL)
+                .exchangeStrategies(getExchangeStrategyWithNoMemoryLimit())
+                .build();
+    }
+
+    private ExchangeStrategies getExchangeStrategyWithNoMemoryLimit() {
+        return ExchangeStrategies.builder()
+                    .codecs(configurer -> configurer
+                            .defaultCodecs()
+                            .maxInMemorySize(USE_ALL_AVAILABLE_MEMORY))
                 .build();
     }
 }
