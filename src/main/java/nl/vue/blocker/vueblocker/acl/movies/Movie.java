@@ -3,17 +3,22 @@ package nl.vue.blocker.vueblocker.acl.movies;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import nl.vue.blocker.vueblocker.acl.layout.GeneralMessage;
 import nl.vue.blocker.vueblocker.acl.layout.KijkwijzerArray;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 
-@Data
-@NoArgsConstructor
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Movie {
     @JsonProperty("id")
@@ -88,5 +93,16 @@ public class Movie {
     public List<KijkwijzerArray> kijkwijzerArray = null;
     @JsonProperty("generalMessages")
     public List<GeneralMessage> generalMessages = null;
+
+    public nl.vue.blocker.vueblocker.movies.Movie toDomain(){
+        return MovieMapper.INSTANCE.movieToMovie(this);
+    }
+
+    @Mapper
+    public interface MovieMapper{
+        MovieMapper INSTANCE = Mappers.getMapper(MovieMapper.class);
+
+        nl.vue.blocker.vueblocker.movies.Movie movieToMovie(Movie movie);
+    }
 
 }

@@ -11,22 +11,25 @@ import nl.vue.blocker.vueblocker.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.acl.reserve.Reservation;
 import nl.vue.blocker.vueblocker.acl.reserve.ReservationUnsuccessful;
 import nl.vue.blocker.vueblocker.acl.vueconnector.Location;
+import nl.vue.blocker.vueblocker.movies.Cinema;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
 @Slf4j
 @AllArgsConstructor
 @Component
-public class VueApi {
+public class VueApi implements Cinema {
 
     WebClient webClient;
 
     // per day
-    public Movie[] getPerformancesByLocationAndDate(Location location, LocalDate localDate) {
+    @Override
+    public nl.vue.blocker.vueblocker.movies.Movie[] getPerformancesByLocationAndDate(Location location, LocalDate localDate) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -38,11 +41,36 @@ public class VueApi {
                         .build())
                 .retrieve()
                 .bodyToMono(Movie[].class)
+                .map(this::mapMovieArrayToMovieDomainArray)
+                .block();
+    }
+
+
+    private nl.vue.blocker.vueblocker.movies.Movie[] mapMovieArrayToMovieDomainArray(Movie[] movies){
+       return Arrays.stream(movies).map(Movie::toDomain).toArray(nl.vue.blocker.vueblocker.movies.Movie[]::new);
+    }
+
+    // get later
+    @Override
+    public nl.vue.blocker.vueblocker.movies.Movie[] getFuturePerformancesByLocationAndDate(Location location) {
+        return this.webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/movies.json")
+                        .queryParam("type", "NOW_PLAYING_WITH_PERFORMANCES")
+                        .queryParam("dateOffset", LocalDate.now())
+                        .queryParam("range", "365")
+                        .queryParam("filters[cinema_id][]", "in")
+                        .queryParam("filters[cinema_id][]", location.getId())
+                        .build())
+                .retrieve()
+                .bodyToMono(Movie[].class)
+                .map(this::mapMovieArrayToMovieDomainArray)
                 .block();
     }
 
     // now in Vue
-    public Movie[] getPerformancesByCinema(Location location, LocalDate localDate) {
+    @Override
+    public nl.vue.blocker.vueblocker.movies.Movie[] getPerformancesByCinema(Location location, LocalDate localDate) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -54,10 +82,12 @@ public class VueApi {
                         .build())
                 .retrieve()
                 .bodyToMono(Movie[].class)
+                .map(this::mapMovieArrayToMovieDomainArray)
                 .block();
     }
 
-    public Mono<Movie[]> getExpectedMovies(LocalDate localDate, int range) {
+    @Override
+    public Mono<nl.vue.blocker.vueblocker.movies.Movie[]> getExpectedMovies(LocalDate localDate, int range) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -67,9 +97,11 @@ public class VueApi {
                         .queryParam("range", range)
                         .build())
                 .retrieve()
-                .bodyToMono(Movie[].class);
+                .bodyToMono(Movie[].class)
+                .map(this::mapMovieArrayToMovieDomainArray);
     }
 
+    @Override
     public PerformanceLayout getPerformanceLayout(String title, String performanceId) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -81,7 +113,7 @@ public class VueApi {
                 .block();
     }
 
-
+    @Override
     public Mono<Performance[]> getPerformanceForMovie(int movieId, Location location) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -95,6 +127,7 @@ public class VueApi {
                 .bodyToMono(Performance[].class);
     }
 
+    @Override
     public Reservation reserveSeat(int performanceId, int seatId) {
         ClientResponse response = this.webClient.get()
                 .uri(uriBuilder -> uriBuilder

@@ -2,7 +2,6 @@ package nl.vue.blocker.vueblocker.movies;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.vue.blocker.vueblocker.acl.movies.Movie;
 import nl.vue.blocker.vueblocker.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.reservations.FutureReservation;
 import org.springframework.web.bind.annotation.*;

@@ -2,8 +2,8 @@ package nl.vue.blocker.vueblocker.reservations;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.vue.blocker.vueblocker.acl.VueApi;
 import nl.vue.blocker.vueblocker.acl.layout.PerformanceLayout;
+import nl.vue.blocker.vueblocker.movies.Cinema;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 @PersistJobDataAfterExecution
 public class SeatReservatorJob implements Job {
 
-    private final VueApi vueApi;
+    private final Cinema cinema;
     private final Scheduler scheduler;
 
     @Override
@@ -27,7 +27,7 @@ public class SeatReservatorJob implements Job {
         int seatRow = (int) jobExecutionContext.getMergedJobDataMap().get("seatRow");
         int seatColumn = (int) jobExecutionContext.getMergedJobDataMap().get("seatColumn");
 
-        PerformanceLayout cinemaLayout = vueApi.getPerformanceLayout(slugTitle, Integer.toString(performanceId));
+        PerformanceLayout cinemaLayout = cinema.getPerformanceLayout(slugTitle, Integer.toString(performanceId));
 
         Optional<Integer> seatNumber = cinemaLayout.getSeatIdByRowAndColumn(seatRow, seatColumn);
 
@@ -50,7 +50,7 @@ public class SeatReservatorJob implements Job {
     }
 
     private Consumer<Integer> reserveSeat(int performanceId) {
-        return integer -> vueApi.reserveSeat(performanceId, integer);
+        return integer -> cinema.reserveSeat(performanceId, integer);
     }
 
     private Runnable logSeatDoesNotExistError() {

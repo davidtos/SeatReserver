@@ -3,8 +3,8 @@ package nl.vue.blocker.vueblocker.reservations;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import nl.vue.blocker.vueblocker.acl.movies.Movie;
 import nl.vue.blocker.vueblocker.acl.movies.Performance;
+import nl.vue.blocker.vueblocker.movies.Movie;
 import nl.vue.blocker.vueblocker.movies.Movies;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
@@ -12,10 +12,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Component

@@ -28,13 +28,5 @@ public class MovieAvailableCheckerJobTest {
         MockitoAnnotations.initMocks(this);
     }
 
-//    @Test
-//    void checkIfJobIsCreatedWhenMatchingMovieFound(){
-//        given(futureReservations.findAll()).willReturn(Collections.singletonList(FutureReservation.builder().id(1L).title("Wonder woman").build()));
-//        given(movies.getFutureAndComingMovies()).willReturn(Collections.singletonList(Movie.builder().id(1).title("WONDER WOMAN 1984").build()));
-//        given(movies.getPerformanceForMovie(1)).willReturn(Mono.justOrEmpty(Arrays.array(Performance.builder().id(1).build())));
-//
-//        movieAvailableCheckerJob.execute(null);
-//    }
 
 }

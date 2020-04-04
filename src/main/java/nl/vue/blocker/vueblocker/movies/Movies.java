@@ -1,8 +1,6 @@
 package nl.vue.blocker.vueblocker.movies;
 
 import lombok.AllArgsConstructor;
-import nl.vue.blocker.vueblocker.acl.VueApi;
-import nl.vue.blocker.vueblocker.acl.movies.Movie;
 import nl.vue.blocker.vueblocker.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.acl.vueconnector.Location;
 import nl.vue.blocker.vueblocker.reservations.FutureReservationsRepo;
@@ -14,17 +12,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 @Component
 @AllArgsConstructor
 public class Movies {
 
-    final private VueApi vueApi;
+    final private Cinema cinema;
     final private FutureReservationsRepo futureReservationsRepo;
 
     Mono<Movie[]> getExpectedMovies() {
-        return vueApi.getExpectedMovies(LocalDate.now(), 730);
+        return cinema.getExpectedMovies(LocalDate.now(), 730);
     }
 
     public List<Movie> getMoviesByTitle(String search) {
@@ -35,11 +33,16 @@ public class Movies {
     }
 
     public List<Movie> getFutureAndComingMovies() {
-        Movie[] expectedMovies = vueApi.getExpectedMovies(LocalDate.now(), 730).block();
-        Movie[] performancesByCinema = vueApi.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now());
-        List<Movie> uniqueMovies = new ArrayList<>(Arrays.asList(expectedMovies));
+        Movie[] expectedMovies = cinema.getExpectedMovies(LocalDate.now(), 730).block();
+        Movie[] performancesByCinema = cinema.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now());
+        Movie[] futurePerformances = cinema.getFuturePerformancesByLocationAndDate(Location.EINDHOVEN);
 
-        for (Movie movie : performancesByCinema) {
+        Movie[] movies = Stream.concat(Arrays.stream(expectedMovies), Arrays.stream(performancesByCinema)).toArray(Movie[]::new);
+        movies = Stream.concat(Arrays.stream(movies), Arrays.stream(futurePerformances)).toArray(Movie[]::new);
+
+        List<Movie> uniqueMovies = new ArrayList<>();
+
+        for (Movie movie : movies) {
             if (uniqueMovies.stream().noneMatch(movie1 -> movie.getSlug().equals(movie1.getSlug()))){
                 uniqueMovies.add(movie);
             }
@@ -48,6 +51,6 @@ public class Movies {
     }
 
     public Mono<Performance[]> getPerformanceForMovie(int movieId) {
-       return vueApi.getPerformanceForMovie(movieId, Location.EINDHOVEN);
+       return cinema.getPerformanceForMovie(movieId, Location.EINDHOVEN);
     }
 }
