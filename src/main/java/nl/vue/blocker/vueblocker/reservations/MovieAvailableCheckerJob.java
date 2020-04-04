@@ -3,9 +3,9 @@ package nl.vue.blocker.vueblocker.reservations;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import nl.vue.blocker.vueblocker.acl.movies.Performance;
-import nl.vue.blocker.vueblocker.movies.Movie;
-import nl.vue.blocker.vueblocker.movies.Movies;
+import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
+import nl.vue.blocker.vueblocker.movies.domain.Movie;
+import nl.vue.blocker.vueblocker.movies.domain.Movies;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ public class MovieAvailableCheckerJob implements Job {
                     .block();
             if (performanceForMovie != null) {
                 for (Performance performance : performanceForMovie) {
-                    CreateReserveJob(movieReservationData, performance);
+                    createReserveJob(movieReservationData, performance);
                 }
             }
         });
@@ -61,9 +61,9 @@ public class MovieAvailableCheckerJob implements Job {
                 .contains(futureReservation.getTitle().toLowerCase());
     }
 
-    private void CreateReserveJob(MovieReservationData movieReservationData, Performance performance) {
+    private void createReserveJob(MovieReservationData movieReservationData, Performance performance) {
         try {
-            JobDetail job = newJob(movieReservationData, performance.getId(), "Reserve a performance");
+            JobDetail job = newReserveJob(movieReservationData, performance.getId(), "Reserve a performance");
             SimpleTrigger trigger = trigger(job);
             scheduler.scheduleJob(job, trigger);
         } catch (ObjectAlreadyExistsException x) {
@@ -74,7 +74,7 @@ public class MovieAvailableCheckerJob implements Job {
         }
     }
 
-    private JobDetail newJob(MovieReservationData movieReservationData, int performanceId, String description) {
+    private JobDetail newReserveJob(MovieReservationData movieReservationData, int performanceId, String description) {
         Movie movie = movieReservationData.getMovie();
         FutureReservation futureReservation = movieReservationData.getFutureReservation();
         String identity = String.format("%s - %s", movie.getTitle(), performanceId);

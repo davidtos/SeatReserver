@@ -11,11 +11,11 @@ public class FutureReservations {
 
     private final FutureReservationsRepo futureReservationsRepo;
 
-    FutureReservation save(FutureReservation futureReservation){
+    public FutureReservation save(FutureReservation futureReservation){
         return futureReservationsRepo.save(futureReservation);
     }
 
-    Iterable<FutureReservation> findAll(){
+    public Iterable<FutureReservation> findAll(){
         return futureReservationsRepo.findAll();
     }
 

@@ -1,7 +1,7 @@
 package nl.vue.blocker.vueblocker;
 
 import io.micrometer.core.instrument.util.IOUtils;
-import nl.vue.blocker.vueblocker.acl.layout.CinemaLayoutParser;
+import nl.vue.blocker.vueblocker.movies.acl.layout.CinemaLayoutParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

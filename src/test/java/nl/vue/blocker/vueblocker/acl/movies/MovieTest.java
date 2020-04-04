@@ -1,14 +1,14 @@
 package nl.vue.blocker.vueblocker.acl.movies;
 
-import nl.vue.blocker.vueblocker.acl.layout.GeneralMessage;
-import nl.vue.blocker.vueblocker.acl.layout.KijkwijzerArray;
+import nl.vue.blocker.vueblocker.movies.acl.layout.GeneralMessage;
+import nl.vue.blocker.vueblocker.movies.acl.layout.KijkwijzerArray;
+import nl.vue.blocker.vueblocker.movies.acl.movies.Movie;
+import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class MovieTest {
 
@@ -53,7 +53,7 @@ class MovieTest {
                 .generalMessages(Collections.singletonList(new GeneralMessage()))
                 .build();
 
-        nl.vue.blocker.vueblocker.movies.Movie domainMovie = movie.toDomain();
+        nl.vue.blocker.vueblocker.movies.domain.Movie domainMovie = movie.toDomain();
 
         assertThat(movie).usingRecursiveComparison().isEqualTo(domainMovie);
 
