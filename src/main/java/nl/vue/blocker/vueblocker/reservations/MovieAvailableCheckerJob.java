@@ -3,9 +3,9 @@ package nl.vue.blocker.vueblocker.reservations;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.movies.domain.Movie;
 import nl.vue.blocker.vueblocker.movies.domain.Movies;
+import nl.vue.blocker.vueblocker.movies.domain.Performance;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +29,7 @@ public class MovieAvailableCheckerJob implements Job {
         List<MovieReservationData> moviesMatchingFutureReservation = getReservedMoviesThatAreAlsoAvailable(futureReservations);
 
         moviesMatchingFutureReservation.forEach(movieReservationData -> {
-            Performance[] performanceForMovie = movies.getPerformanceForMovie(movieReservationData.getMovie().getId())
+            Performance[] performanceForMovie = movies.getPerformanceByMovieId(movieReservationData.getMovie().getId())
                     .block();
             if (performanceForMovie != null) {
                 for (Performance performance : performanceForMovie) {

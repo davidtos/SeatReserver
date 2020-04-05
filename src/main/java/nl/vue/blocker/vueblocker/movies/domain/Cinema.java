@@ -1,9 +1,7 @@
 package nl.vue.blocker.vueblocker.movies.domain;
 
 import nl.vue.blocker.vueblocker.movies.acl.layout.PerformanceLayout;
-import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.movies.acl.reserve.Reservation;
-import nl.vue.blocker.vueblocker.movies.acl.vueconnector.Location;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;

@@ -29,7 +29,6 @@ public class SeatReservatorJob implements Job {
         String sessionId = (String) jobExecutionContext.getMergedJobDataMap().get("sessionId");
 
         PerformanceLayout cinemaLayout = cinema.getPerformanceLayout(slugTitle, Integer.toString(performanceId));
-
         Optional<Integer> seatNumber = cinemaLayout.getSeatIdByRowAndColumn(seatRow, seatColumn);
 
         if (seatNumber.isPresent()) {

@@ -1,8 +1,6 @@
 package nl.vue.blocker.vueblocker.movies.domain;
 
 import lombok.AllArgsConstructor;
-import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
-import nl.vue.blocker.vueblocker.movies.acl.vueconnector.Location;
 import nl.vue.blocker.vueblocker.reservations.FutureReservationsRepo;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -50,7 +48,7 @@ public class Movies {
         return uniqueMovies;
     }
 
-    public Mono<Performance[]> getPerformanceForMovie(int movieId) {
+    public Mono<Performance[]> getPerformanceByMovieId(int movieId) {
        return cinema.getPerformanceForMovie(movieId, Location.EINDHOVEN);
     }
 }

@@ -1,14 +1,17 @@
 package nl.vue.blocker.vueblocker.movies.domain;
 
-import lombok.Data;
+import lombok.*;
 import nl.vue.blocker.vueblocker.movies.acl.layout.GeneralMessage;
 import nl.vue.blocker.vueblocker.movies.acl.layout.KijkwijzerArray;
-import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
 
 import java.util.List;
 
 
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Movie {
     private Integer id;
     private String oid;

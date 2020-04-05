@@ -103,6 +103,10 @@ public class Movie {
         MovieMapper INSTANCE = Mappers.getMapper(MovieMapper.class);
 
         nl.vue.blocker.vueblocker.movies.domain.Movie movieToMovie(Movie movie);
+
+        default nl.vue.blocker.vueblocker.movies.domain.Performance performanceToDomain(Performance performance){
+            return performance.toDomain();
+        }
     }
 
 }

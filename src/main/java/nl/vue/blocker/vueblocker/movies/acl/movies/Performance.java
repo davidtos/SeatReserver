@@ -3,9 +3,16 @@ package nl.vue.blocker.vueblocker.movies.acl.movies;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Performance {
@@ -80,4 +87,23 @@ public class Performance {
     @JsonProperty("startTimeInSeconds")
     public Integer startTimeInSeconds;
 
+    public nl.vue.blocker.vueblocker.movies.domain.Performance toDomain(){
+        return Performance.PerformanceMapper.INSTANCE.performanceToPerformance(this);
+    }
+
+    @Mapper
+    public interface PerformanceMapper{
+        Performance.PerformanceMapper INSTANCE = Mappers.getMapper(Performance.PerformanceMapper.class);
+
+        nl.vue.blocker.vueblocker.movies.domain.Performance performanceToPerformance(Performance performance);
+
+        default Boolean integerToBoolean(Integer integer){
+            if(integer == 1){
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
 }

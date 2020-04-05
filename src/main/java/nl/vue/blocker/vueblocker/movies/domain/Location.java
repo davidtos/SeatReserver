@@ -1,4 +1,4 @@
-package nl.vue.blocker.vueblocker.movies.acl.vueconnector;
+package nl.vue.blocker.vueblocker.movies.domain;
 
 public enum Location {
 

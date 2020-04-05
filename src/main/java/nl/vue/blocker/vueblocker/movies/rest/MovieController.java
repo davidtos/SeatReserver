@@ -3,8 +3,8 @@ package nl.vue.blocker.vueblocker.movies.rest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.movies.domain.Movies;
-import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.movies.domain.Movie;
+import nl.vue.blocker.vueblocker.movies.domain.Performance;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +30,6 @@ public class MovieController {
 
     @GetMapping("/performances/{id}")
     public Mono<Performance[]> getPerformanceForMovie(@PathVariable int id){
-        return movies.getPerformanceForMovie(id);
+        return movies.getPerformanceByMovieId(id);
     }
 }

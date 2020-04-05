@@ -10,7 +10,7 @@ import nl.vue.blocker.vueblocker.movies.acl.movies.Movie;
 import nl.vue.blocker.vueblocker.movies.acl.movies.Performance;
 import nl.vue.blocker.vueblocker.movies.acl.reserve.Reservation;
 import nl.vue.blocker.vueblocker.movies.acl.reserve.ReservationUnsuccessful;
-import nl.vue.blocker.vueblocker.movies.acl.vueconnector.Location;
+import nl.vue.blocker.vueblocker.movies.domain.Location;
 import nl.vue.blocker.vueblocker.movies.domain.Cinema;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -114,7 +114,7 @@ public class VueApi implements Cinema {
     }
 
     @Override
-    public Mono<Performance[]> getPerformanceForMovie(int movieId, Location location) {
+    public Mono<nl.vue.blocker.vueblocker.movies.domain.Performance[]> getPerformanceForMovie(int movieId, Location location) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/performances.json")
@@ -124,7 +124,12 @@ public class VueApi implements Cinema {
                         .queryParam("range",365)
                         .build())
                 .retrieve()
-                .bodyToMono(Performance[].class);
+                .bodyToMono(Performance[].class)
+                .map(this::mapPerformanceArrayToPerformanceDomainArray);
+    }
+
+    private nl.vue.blocker.vueblocker.movies.domain.Performance[] mapPerformanceArrayToPerformanceDomainArray(Performance[] performances){
+        return Arrays.stream(performances).map(Performance::toDomain).toArray(nl.vue.blocker.vueblocker.movies.domain.Performance[]::new);
     }
 
     @Override
