@@ -4,6 +4,7 @@ import lombok.*;
 import nl.vue.blocker.vueblocker.movies.acl.layout.GeneralMessage;
 import nl.vue.blocker.vueblocker.movies.acl.layout.KijkwijzerArray;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -12,7 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Movie {
+public class Movie implements Serializable {
     private Integer id;
     private String oid;
     private String edi;

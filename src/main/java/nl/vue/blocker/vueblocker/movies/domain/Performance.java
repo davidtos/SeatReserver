@@ -2,12 +2,14 @@ package nl.vue.blocker.vueblocker.movies.domain;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Performance {
+public class Performance implements Serializable {
     private Integer id;
     private String oid;
     private Integer cinemaId;

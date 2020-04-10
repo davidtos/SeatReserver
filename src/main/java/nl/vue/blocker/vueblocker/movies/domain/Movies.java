@@ -2,6 +2,7 @@ package nl.vue.blocker.vueblocker.movies.domain;
 
 import lombok.AllArgsConstructor;
 import nl.vue.blocker.vueblocker.reservations.FutureReservationsRepo;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +17,8 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public class Movies {
 
+
+    private RedisTemplate<String, List<Movie>> redisTemplate;
     final private Cinema cinema;
     final private FutureReservationsRepo futureReservationsRepo;
 
@@ -24,10 +27,16 @@ public class Movies {
     }
 
     public List<Movie> getMoviesByTitle(String search) {
-        List<Movie> futureAndComingMovies = getFutureAndComingMovies();
-        return futureAndComingMovies.stream()
-                .filter(movie -> movie.getTitle().toLowerCase().contains(search.toLowerCase()))
-                .collect(Collectors.toList());
+        if (redisTemplate.hasKey(search)) {
+            return redisTemplate.opsForValue().get(search);
+        } else {
+            List<Movie> movieList = getFutureAndComingMovies().stream()
+                    .filter(movie -> movie.getTitle().toLowerCase().contains(search.toLowerCase()))
+                    .collect(Collectors.toList());
+            redisTemplate.opsForValue().set(search, movieList);
+            return movieList;
+        }
+
     }
 
     public List<Movie> getFutureAndComingMovies() {
@@ -41,7 +50,7 @@ public class Movies {
         List<Movie> uniqueMovies = new ArrayList<>();
 
         for (Movie movie : movies) {
-            if (uniqueMovies.stream().noneMatch(movie1 -> movie.getSlug().equals(movie1.getSlug()))){
+            if (uniqueMovies.stream().noneMatch(movie1 -> movie.getSlug().equals(movie1.getSlug()))) {
                 uniqueMovies.add(movie);
             }
         }
@@ -49,6 +58,6 @@ public class Movies {
     }
 
     public Mono<Performance[]> getPerformanceByMovieId(int movieId) {
-       return cinema.getPerformanceForMovie(movieId, Location.EINDHOVEN);
+        return cinema.getPerformanceForMovie(movieId, Location.EINDHOVEN);
     }
 }
