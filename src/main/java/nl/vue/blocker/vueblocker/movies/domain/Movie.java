@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = "slug")
 public class Movie implements Serializable {
     private Integer id;
     private String oid;

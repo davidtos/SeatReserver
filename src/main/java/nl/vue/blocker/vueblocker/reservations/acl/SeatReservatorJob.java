@@ -1,13 +1,17 @@
-package nl.vue.blocker.vueblocker.reservations;
+package nl.vue.blocker.vueblocker.reservations.acl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.movies.acl.layout.PerformanceLayout;
 import nl.vue.blocker.vueblocker.movies.acl.reserve.Reservation;
 import nl.vue.blocker.vueblocker.movies.domain.Cinema;
+import nl.vue.blocker.vueblocker.reservations.FutureReservation;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -19,17 +23,20 @@ public class SeatReservatorJob implements Job {
     private final Cinema cinema;
     private final Scheduler scheduler;
 
+    @SneakyThrows
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
         Integer movieId = (Integer) jobExecutionContext.getMergedJobDataMap().get("movieId");
         int performanceId = (int) jobExecutionContext.getMergedJobDataMap().get("performanceId");
         String slugTitle = (String) jobExecutionContext.getMergedJobDataMap().get("slugTitle");
-        int seatRow = (int) jobExecutionContext.getMergedJobDataMap().get("seatRow");
-        int seatColumn = (int) jobExecutionContext.getMergedJobDataMap().get("seatColumn");
         String sessionId = (String) jobExecutionContext.getMergedJobDataMap().get("sessionId");
 
+        String futureReservationAsJson = (String) jobExecutionContext.getMergedJobDataMap().get("futureReservation");
+        ObjectMapper objectMapper = new ObjectMapper();
+        FutureReservation futureReservation = objectMapper.readValue(futureReservationAsJson, FutureReservation.class);
+
         PerformanceLayout cinemaLayout = cinema.getPerformanceLayout(slugTitle, Integer.toString(performanceId));
-        Optional<Integer> seatNumber = cinemaLayout.getSeatIdByRowAndColumn(seatRow, seatColumn);
+        Optional<Integer> seatNumber = cinemaLayout.getSeatIdByRowAndColumn(futureReservation.getRow(), futureReservation.getColumn());
 
         if (seatNumber.isPresent()) {
             Reservation reservation = reserveSeat(sessionId, performanceId, seatNumber.get());
@@ -66,10 +73,11 @@ public class SeatReservatorJob implements Job {
     }
 
     private SimpleTrigger trigger(JobDetail jobDetail) {
+        Date nowPlus5Minutes = DateBuilder.nextGivenMinuteDate(DateBuilder.newDate().build(), 5);
         return TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(jobDetail.getKey().getName(), jobDetail.getKey().getGroup())
                 .withSchedule(SimpleScheduleBuilder.repeatMinutelyForTotalCount(1, 5))
-                .startNow() // Creates a loop, good for testing not for production. TODO: start over 5min
+                .startAt(nowPlus5Minutes)
                 .build();
     }
 

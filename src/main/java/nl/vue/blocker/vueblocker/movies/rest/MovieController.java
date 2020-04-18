@@ -22,7 +22,7 @@ public class MovieController {
     private final Movies movies;
 
     @GetMapping
-    public Mono<Movie[]> getMovies(){
+    public Mono<Movie[]> getMoviesData() {
         return movies.getExpectedMovies();
     }
 

@@ -1,6 +1,6 @@
 package nl.vue.blocker.vueblocker.scheduler;
 
-import nl.vue.blocker.vueblocker.reservations.MovieAvailableCheckerJob;
+import nl.vue.blocker.vueblocker.movies.acl.MovieAvailableCheckerJob;
 import org.quartz.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
