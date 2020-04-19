@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class MovieController {
     private final Movies movies;
 
     @GetMapping
-    public Mono<Movie[]> getMoviesData() {
+    public Flux<Movie> getMoviesData() {
         return movies.getExpectedMovies();
     }
 
@@ -32,7 +32,7 @@ public class MovieController {
     }
 
     @GetMapping("/performances/{id}")
-    public Mono<Performance[]> getPerformanceForMovie(@PathVariable int id){
+    public Flux<Performance> getPerformanceForMovie(@PathVariable int id){
         return movies.getPerformanceByMovieId(id);
     }
 }

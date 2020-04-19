@@ -15,6 +15,7 @@ import nl.vue.blocker.vueblocker.movies.domain.Cinema;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -27,9 +28,9 @@ public class VueApi implements Cinema {
 
     WebClient webClient;
 
-    // per day
+
     @Override
-    public nl.vue.blocker.vueblocker.movies.domain.Movie[] getPerformancesByLocationAndDate(Location location, LocalDate localDate) {
+    public Flux<nl.vue.blocker.vueblocker.movies.domain.Movie> getMoviesByLocationAndDate(Location location, LocalDate localDate) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -40,19 +41,18 @@ public class VueApi implements Cinema {
                         .queryParam("filters[cinema_id][]", location.getId())
                         .build())
                 .retrieve()
-                .bodyToMono(Movie[].class)
-                .map(this::mapMovieArrayToMovieDomainArray)
-                .block();
+                .bodyToFlux(Movie.class)
+                .map(Movie::toDomain);
     }
 
 
-    private nl.vue.blocker.vueblocker.movies.domain.Movie[] mapMovieArrayToMovieDomainArray(Movie[] movies){
-       return Arrays.stream(movies).map(Movie::toDomain).toArray(nl.vue.blocker.vueblocker.movies.domain.Movie[]::new);
+    private nl.vue.blocker.vueblocker.movies.domain.Movie[] mapMovieArrayToMovieDomainArray(Movie[] movies) {
+        return Arrays.stream(movies).map(Movie::toDomain).toArray(nl.vue.blocker.vueblocker.movies.domain.Movie[]::new);
     }
 
     // get later
     @Override
-    public nl.vue.blocker.vueblocker.movies.domain.Movie[] getFuturePerformancesByLocationAndDate(Location location) {
+    public Flux<nl.vue.blocker.vueblocker.movies.domain.Movie> getFuturePerformancesByLocationAndDate(Location location) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -63,14 +63,14 @@ public class VueApi implements Cinema {
                         .queryParam("filters[cinema_id][]", location.getId())
                         .build())
                 .retrieve()
-                .bodyToMono(Movie[].class)
-                .map(this::mapMovieArrayToMovieDomainArray)
-                .block();
+                .bodyToFlux(Movie.class)
+                .map(Movie::toDomain);
+
     }
 
     // now in Vue
     @Override
-    public nl.vue.blocker.vueblocker.movies.domain.Movie[] getPerformancesByCinema(Location location, LocalDate localDate) {
+    public Flux<nl.vue.blocker.vueblocker.movies.domain.Movie> getPerformancesByCinema(Location location, LocalDate localDate) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -81,13 +81,12 @@ public class VueApi implements Cinema {
                         .queryParam("filters[cinema_id][]", location.getId())
                         .build())
                 .retrieve()
-                .bodyToMono(Movie[].class)
-                .map(this::mapMovieArrayToMovieDomainArray)
-                .block();
+                .bodyToFlux(Movie.class)
+                .map(Movie::toDomain);
     }
 
     @Override
-    public Mono<nl.vue.blocker.vueblocker.movies.domain.Movie[]> getExpectedMovies(LocalDate localDate, int range) {
+    public Flux<nl.vue.blocker.vueblocker.movies.domain.Movie> getExpectedMovies(LocalDate localDate, int range) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/movies.json")
@@ -97,8 +96,8 @@ public class VueApi implements Cinema {
                         .queryParam("range", range)
                         .build())
                 .retrieve()
-                .bodyToMono(Movie[].class)
-                .map(this::mapMovieArrayToMovieDomainArray);
+                .bodyToFlux(Movie.class)
+                .map(Movie::toDomain);
     }
 
     @Override
@@ -114,21 +113,21 @@ public class VueApi implements Cinema {
     }
 
     @Override
-    public Mono<nl.vue.blocker.vueblocker.movies.domain.Performance[]> getPerformanceForMovie(int movieId, Location location) {
+    public Flux<nl.vue.blocker.vueblocker.movies.domain.Performance> getPerformanceForMovie(int movieId, Location location) {
         return this.webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/performances.json")
                         .queryParam("movie_id", movieId)
                         .queryParam("cinema_ids[]", location.getId())
                         .queryParam("dateOffset", LocalDate.now())
-                        .queryParam("range",365)
+                        .queryParam("range", 365)
                         .build())
                 .retrieve()
-                .bodyToMono(Performance[].class)
-                .map(this::mapPerformanceArrayToPerformanceDomainArray);
+                .bodyToFlux(Performance.class)
+                .map(Performance::toDomain);
     }
 
-    private nl.vue.blocker.vueblocker.movies.domain.Performance[] mapPerformanceArrayToPerformanceDomainArray(Performance[] performances){
+    private nl.vue.blocker.vueblocker.movies.domain.Performance[] mapPerformanceArrayToPerformanceDomainArray(Performance[] performances) {
         return Arrays.stream(performances).map(Performance::toDomain).toArray(nl.vue.blocker.vueblocker.movies.domain.Performance[]::new);
     }
 
@@ -188,7 +187,7 @@ public class VueApi implements Cinema {
                         .queryParam("performance_id", performanceId)
                         .queryParam("seat_number", seatId)
                         .build())
-                .cookie("VUE",sessionId)
+                .cookie("VUE", sessionId)
                 .exchange()
                 .block();
 
@@ -216,7 +215,7 @@ public class VueApi implements Cinema {
 
     private Reservation mapToSuccessfulReservation(ClientResponse response, String reservationBody, ObjectMapper mapper) throws JsonProcessingException {
         Reservation reservation = mapper.readValue(reservationBody, Reservation.class);
-        if(!response.cookies().isEmpty()){
+        if (!response.cookies().isEmpty()) {
             reservation.sessionId = response.cookies().get("VUE").get(0).getValue();
         }
         return reservation;

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import nl.vue.blocker.vueblocker.movies.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -22,7 +23,7 @@ public class MoviesData implements Movies {
     final private Cinema cinema;
 
     @Override
-    public Mono<Movie[]> getExpectedMovies() {
+    public Flux<Movie> getExpectedMovies() {
         return cinema.getExpectedMovies(LocalDate.now(), 730);
     }
 
@@ -41,17 +42,15 @@ public class MoviesData implements Movies {
 
     @Override
     public Set<Movie> getFutureAndComingMovies() {
-        Set<Movie> uniqueMovies = new HashSet<>();
-
-        uniqueMovies.addAll(Arrays.asList(cinema.getExpectedMovies(LocalDate.now(), 730).block()));
-        uniqueMovies.addAll(Arrays.asList(cinema.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now())));
-        uniqueMovies.addAll(Arrays.asList(cinema.getFuturePerformancesByLocationAndDate(Location.EINDHOVEN)));
-
-        return uniqueMovies;
+        return cinema.getExpectedMovies(LocalDate.now(), 730)
+                .mergeWith(cinema.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now()))
+                .mergeWith(cinema.getFuturePerformancesByLocationAndDate(Location.EINDHOVEN))
+                .collect(Collectors.toSet())
+                .block();
     }
 
     @Override
-    public Mono<Performance[]> getPerformanceByMovieId(int movieId) {
+    public Flux<Performance> getPerformanceByMovieId(int movieId) {
         return cinema.getPerformanceForMovie(movieId, Location.EINDHOVEN);
     }
 }

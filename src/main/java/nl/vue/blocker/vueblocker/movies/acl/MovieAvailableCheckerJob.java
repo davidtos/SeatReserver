@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.movies.domain.Movie;
 import nl.vue.blocker.vueblocker.movies.domain.MovieWithPerformanceEvent;
 import nl.vue.blocker.vueblocker.movies.domain.Movies;
-import nl.vue.blocker.vueblocker.movies.domain.Performance;
 import nl.vue.blocker.vueblocker.reservations.FutureReservation;
 import nl.vue.blocker.vueblocker.reservations.FutureReservations;
 import org.quartz.Job;
@@ -32,21 +31,23 @@ public class MovieAvailableCheckerJob implements Job {
      */
     public void execute(JobExecutionContext context) {
         Iterable<FutureReservation> futureReservations = this.futureReservations.findAll();
-        List<MovieReservationData> moviesMatchingFutureReservation = getReservedMoviesThatAreAlsoAvailable(futureReservations);
+        List<MovieReservationData> moviesWithFutureReservation = getMoviesMatchingReservations(futureReservations);
 
-        moviesMatchingFutureReservation.forEach(movieReservationData -> {
-            Performance[] performanceForMovie = movies.getPerformanceByMovieId(movieReservationData.getMovie().getId())
-                    .block();
-            if (performanceForMovie != null) {
-                for (Performance performance : performanceForMovie) {
-                    MovieWithPerformanceEvent movieWithPerformanceEvent = new MovieWithPerformanceEvent(this, movieReservationData.movie, movieReservationData.futureReservation, performance);
-                    applicationEventPublisher.publishEvent(movieWithPerformanceEvent);
-                }
-            }
-        });
+        moviesWithFutureReservation.forEach(movieReservationData ->
+                movies.getPerformanceByMovieId(movieReservationData.getMovie().getId())
+                        .toStream()
+                        .forEach(performance -> {
+                            MovieWithPerformanceEvent movieWithPerformanceEvent = new MovieWithPerformanceEvent(
+                                    this,
+                                    movieReservationData.getMovie(),
+                                    movieReservationData.getFutureReservation(),
+                                    performance);
+                            applicationEventPublisher.publishEvent(movieWithPerformanceEvent);
+                        })
+        );
     }
 
-    private List<MovieReservationData> getReservedMoviesThatAreAlsoAvailable(Iterable<FutureReservation> futureReservations) {
+    private List<MovieReservationData> getMoviesMatchingReservations(Iterable<FutureReservation> futureReservations) {
         List<MovieReservationData> movieReservationData = new ArrayList<>();
         for (FutureReservation futureReservation : futureReservations) {
             Optional<Movie> optionalMovie = this.movies.getFutureAndComingMovies().stream()
@@ -68,8 +69,7 @@ public class MovieAvailableCheckerJob implements Job {
 
     @AllArgsConstructor
     @Getter
-    static
-    class MovieReservationData {
+    private static class MovieReservationData {
         private final Movie movie;
         private final FutureReservation futureReservation;
     }
