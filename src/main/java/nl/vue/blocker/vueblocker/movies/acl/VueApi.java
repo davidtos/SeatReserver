@@ -28,7 +28,6 @@ public class VueApi implements Cinema {
 
     WebClient webClient;
 
-
     @Override
     public Flux<nl.vue.blocker.vueblocker.movies.domain.Movie> getMoviesByLocationAndDate(Location location, LocalDate localDate) {
         return this.webClient.get()
@@ -44,7 +43,6 @@ public class VueApi implements Cinema {
                 .bodyToFlux(Movie.class)
                 .map(Movie::toDomain);
     }
-
 
     private nl.vue.blocker.vueblocker.movies.domain.Movie[] mapMovieArrayToMovieDomainArray(Movie[] movies) {
         return Arrays.stream(movies).map(Movie::toDomain).toArray(nl.vue.blocker.vueblocker.movies.domain.Movie[]::new);
@@ -65,7 +63,6 @@ public class VueApi implements Cinema {
                 .retrieve()
                 .bodyToFlux(Movie.class)
                 .map(Movie::toDomain);
-
     }
 
     // now in Vue

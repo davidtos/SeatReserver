@@ -5,12 +5,9 @@ import nl.vue.blocker.vueblocker.movies.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
