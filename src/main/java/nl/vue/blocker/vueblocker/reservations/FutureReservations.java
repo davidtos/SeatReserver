@@ -25,6 +25,10 @@ public class FutureReservations {
         seatReserver.reserveSeat(event.getMovie(), event.getFutureReservation(), event.getPerformance());
     }
 
+    public Iterable<FutureReservation> findAllByMovieTitle(String title){
+        return futureReservationsRepo.findAllReservationsbyMovieTitle(title);
+    }
+
     public Iterable<FutureReservation> findAll() {
         return futureReservationsRepo.findAll();
     }

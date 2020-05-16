@@ -21,7 +21,7 @@ public class SeatReserverImpl implements SeatReserver {
     @Override
     public void reserveSeat(Movie movie, FutureReservation futureReservation, Performance performance) {
         try {
-            JobDetail job = newReserveJob(movie, futureReservation, performance.getId());
+            JobDetail job = reserveJob(movie, futureReservation, performance.getId());
             SimpleTrigger trigger = trigger(job);
             scheduler.scheduleJob(job, trigger);
         } catch (ObjectAlreadyExistsException x) {
@@ -40,7 +40,7 @@ public class SeatReserverImpl implements SeatReserver {
                 .build();
     }
 
-    private JobDetail newReserveJob(Movie movie, FutureReservation futureReservation, int performanceId) {
+    private JobDetail reserveJob(Movie movie, FutureReservation futureReservation, int performanceId) {
         String identity = String.format("%s - %s", movie.getTitle(), performanceId);
 
         return JobBuilder.newJob().ofType(SeatReservatorJob.class).storeDurably()
