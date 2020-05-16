@@ -1,4 +1,4 @@
-package nl.vue.blocker.vueblocker.reservations;
+package nl.vue.blocker.vueblocker.reservations.persistance;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

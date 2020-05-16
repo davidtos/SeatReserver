@@ -1,5 +1,7 @@
 package nl.vue.blocker.vueblocker.reservations;
 
+import nl.vue.blocker.vueblocker.reservations.persistance.FutureReservation;
+import nl.vue.blocker.vueblocker.reservations.persistance.FutureReservationsRepo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;

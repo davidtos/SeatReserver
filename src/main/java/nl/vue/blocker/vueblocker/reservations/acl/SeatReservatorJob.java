@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.movies.acl.layout.PerformanceLayout;
 import nl.vue.blocker.vueblocker.movies.acl.reserve.Reservation;
 import nl.vue.blocker.vueblocker.movies.domain.Cinema;
-import nl.vue.blocker.vueblocker.reservations.FutureReservation;
+import nl.vue.blocker.vueblocker.reservations.persistance.FutureReservation;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 

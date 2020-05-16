@@ -1,4 +1,4 @@
-package nl.vue.blocker.vueblocker.reservations;
+package nl.vue.blocker.vueblocker.reservations.persistance;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

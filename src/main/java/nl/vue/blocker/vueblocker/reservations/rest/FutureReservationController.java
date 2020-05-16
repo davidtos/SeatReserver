@@ -2,8 +2,8 @@ package nl.vue.blocker.vueblocker.reservations.rest;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.vue.blocker.vueblocker.reservations.FutureReservation;
-import nl.vue.blocker.vueblocker.reservations.FutureReservations;
+import nl.vue.blocker.vueblocker.reservations.domain.FutureReservations;
+import nl.vue.blocker.vueblocker.reservations.persistance.FutureReservation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;

@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.vue.blocker.vueblocker.movies.domain.Movie;
 import nl.vue.blocker.vueblocker.movies.domain.Performance;
-import nl.vue.blocker.vueblocker.reservations.FutureReservation;
-import nl.vue.blocker.vueblocker.reservations.SeatReserver;
+import nl.vue.blocker.vueblocker.reservations.domain.SeatReserver;
+import nl.vue.blocker.vueblocker.reservations.persistance.FutureReservation;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 

@@ -2,6 +2,7 @@ package nl.vue.blocker.vueblocker.reservations;
 
 import nl.vue.blocker.vueblocker.movies.acl.MovieAvailableCheckerJob;
 import nl.vue.blocker.vueblocker.movies.domain.Movies;
+import nl.vue.blocker.vueblocker.reservations.domain.FutureReservations;
 import org.junit.Before;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
