@@ -16,12 +16,12 @@ class AppConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
 
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("192.168.1.124", 6379));
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("redis", 6379));
     }
 
     @Bean
     public RedisTemplate<String, List<Movie>> redisTemplate(LettuceConnectionFactory factory) {
-        final RedisTemplate<String, List<Movie>> template = new RedisTemplate<String, List<Movie>>();
+        final RedisTemplate<String, List<Movie>> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
         template.setKeySerializer(new StringRedisSerializer());
 //        template.setHashValueSerializer(new GenericToStringSerializer<Object>(Object.class));

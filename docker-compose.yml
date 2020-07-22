@@ -1,6 +1,14 @@
-version: '3'
+version: '3.7'
 services:
   vueblocker:
     build: .
+    container_name: vueblocker
     ports:
       - "8080:8080"
+      - "5005:5005"
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar /app.jar
+  reddis:
+    container_name: redis
+    image: redis
+    ports:
+      - "6379:6379"
