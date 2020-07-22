@@ -1,5 +1,4 @@
 FROM openjdk:13-jdk-alpine
-VOLUME /tmp
-ADD target/vueblocker-0.0.1-SNAPSHOT.jar target/app.jar
-EXPOSE 8080/tcp
-ENTRYPOINT ["java","-jar","target/app.jar"]
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
