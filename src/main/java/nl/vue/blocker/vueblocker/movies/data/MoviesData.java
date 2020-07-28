@@ -9,8 +9,8 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,6 +20,7 @@ public class MoviesData implements Movies {
 
     final private RedisTemplate<String, List<Movie>> redisTemplate;
     final private Cinema cinema;
+
 
     @Override
     public Flux<Movie> getExpectedMovies() {
@@ -40,12 +41,24 @@ public class MoviesData implements Movies {
     }
 
     @Override
-    public Set<Movie> getFutureAndComingMovies() {
-        return cinema.getExpectedMovies(LocalDate.now(), 730)
+    public Collection<Movie> getFutureAndComingMovies() {
+        List<Movie> movies = cinema.getExpectedMovies(LocalDate.now(), 730)
                 .mergeWith(cinema.getPerformancesByCinema(Location.EINDHOVEN, LocalDate.now()))
                 .mergeWith(cinema.getFuturePerformancesByLocationAndDate(Location.EINDHOVEN))
-                .collect(Collectors.toSet())
+                .collectList()
                 .block();
+
+        return movies.stream()
+                .collect(Collectors.toMap(Movie::getSlug, movie -> movie, MoviesData::keepMovieWithPerformancesMerge))
+                .values();
+    }
+
+    private static Movie keepMovieWithPerformancesMerge(Movie existing, Movie replacement) {
+        if (existing.getPerformances() == null) {
+            return replacement;
+        } else {
+            return existing;
+        }
     }
 
     @Override
